@@ -143,7 +143,7 @@ public class Main extends JPanel {
 
 	void createFrame() { // creates basic frame for the program and adds menu
 
-		gui = new JFrame("board Games");
+		gui = new JFrame("Board Games");
 		createMenu();
 		gui.add(panel1);
 		gui.revalidate();
@@ -261,15 +261,17 @@ public class Main extends JPanel {
 		checkersBoard.gameType = "Checkers";
 		checkersBoard.playerTurn = 'B';
 
-		if (time != 0) {
-			(new Thread(clock = new clock(time, time))).start();
-		}
-
 		if (gameLoaded) { // if a game save is loaded, runs 'readBoard' method
 							// to set piecePosition and playerTurn to the
 							// correct values
 			checkersBoard.readBoard(gameID);
+			if (checkersBoard.p1Time != 0) {
+				(new Thread(clock = new clock(checkersBoard.p1Time, checkersBoard.p2Time))).start();
+			}
+		} else if (time != 0) {
+			(new Thread(clock = new clock(time, time))).start();
 		}
+		
 
 		do {
 			String currentBoard = checkersBoard
@@ -295,6 +297,15 @@ public class Main extends JPanel {
 			}
 
 			while (!checkersBoard.moveMade && !checkersBoard.gameOver) {
+				try {
+					if (clock.playerLost() != 0) {
+						checkersBoard.gameOver = true;
+					}
+					checkersBoard.p1Time = clock.getWhiteTime();
+					checkersBoard.p2Time = clock.getBlackTime();
+				} catch (NullPointerException e) {
+
+				}
 				try {
 					Thread.sleep(12);
 				} catch (InterruptedException e) {
@@ -354,7 +365,11 @@ public class Main extends JPanel {
 			}
 
 			if (checkersBoard.allowedMoves.size() == 0) { 
-				clock.changeclock();
+				try {
+					clock.changeclock();
+				} catch (NullPointerException e) {
+
+				}
 				if (checkersBoard.playerTurn == 'B') {
 
 					checkersBoard.playerTurn = 'R';
@@ -364,6 +379,11 @@ public class Main extends JPanel {
 			}
 
 		} while (!checkersBoard.gameOver);
+		try {
+			clock.dispose();
+		} catch (NullPointerException e) {
+			
+		}
 	}
 
 	void gameChess(boolean gameLoaded) { // contains some game functionality of
@@ -376,25 +396,19 @@ public class Main extends JPanel {
 		drawBoard();
 		chessBoard.gameType = "Chess";
 		chessBoard.playerTurn = 'W';
-		if (time != 0) {
-			(new Thread(clock = new clock(time, time))).start();
-		}
+		
 
 		if (gameLoaded) { // if a game save is loaded, runs 'readBoard' method
 							// to set piecePosition and playerTurn to the
 							// correct values
 			chessBoard.readBoard(gameID);
 			if (chessBoard.p1Time != 0) {
-				if (clock != null) {
-					clock.setWhiteTime(chessBoard.p1Time);
-					clock.setBlackTime(chessBoard.p2Time);
-					System.out.println(clock.getWhiteTime() + "\n" + clock.getBlackTime());
-				} else {
 					(new Thread(clock = new clock(chessBoard.p1Time, chessBoard.p2Time))).start();
-				}
 			}
+		} else if (time != 0) {
+			(new Thread(clock = new clock(time, time))).start();
 		}
-
+		
 		do {
 			String currentBoard = chessBoard
 					.writeBoard(chessBoard.piecePosition);

@@ -240,8 +240,10 @@ public abstract class Board extends JPanel implements MouseListener {
 					playerTurn = strLine.charAt(0);
 				} else if (x == 2){
 					p1Time = Integer.parseInt(strLine);
+					System.out.println(p1Time + "\n");
 				} else if (x == 3) {
 					p2Time = Integer.parseInt(strLine);
+					System.out.println(p2Time);
 				} else if (x == 4) {
 					board = strLine;
 				} else {
